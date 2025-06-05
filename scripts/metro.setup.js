@@ -1,0 +1,1 @@
+console.log('Metro bundler setup completed');

@@ -1,0 +1,106 @@
+:root {
+  --primary-purple: #2b044e;
+  --primary-dark: #1a0934;
+  --primary-light: #4a1b6d;
+  --accent-gold: #ffd700;
+  --accent-silver: #c0c0c0;
+  --glass-bg: rgba(43, 4, 78, 0.2);
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-purple) 100%);
+  color: white;
+  min-height: 100vh;
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.betting-controls {
+  background: rgba(74, 27, 109, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.bet-input-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bet-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: var(--accent-gold);
+  padding: 10px;
+  width: 120px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.bet-input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+}
+
+.bet-button {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: var(--accent-gold);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  min-width: 70px;
+}
+
+.bet-button:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.bet-label {
+  color: var(--accent-gold);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.score-display {
+  font-size: 24px;
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--accent-gold);
+}
