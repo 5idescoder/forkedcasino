@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Arcade Games</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <div class="admin-controls">
+                <span id="admin-user-display"></span>
+                <a href="index.html" class="glass-button">Back to Games</a>
+                <button id="auth-button" class="glass-button">Logout</button>
+            </div>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="tab-button active" data-tab="users">
+                <i class="fas fa-users"></i> Users
+            </button>
+            <button class="tab-button" data-tab="games">
+                <i class="fas fa-gamepad"></i> Game Settings
+            </button>
+            <button class="tab-button" data-tab="logs">
+                <i class="fas fa-history"></i> Admin Logs
+            </button>
+        </div>
+
+        <div class="tab-content active" id="users-tab">
+            <div class="search-bar">
+                <input type="text" id="user-search" placeholder="Search users...">
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="tab-content" id="games-tab">
+            <div class="game-settings">
+                <h2>Game Settings</h2>
+                <div class="settings-grid" id="game-settings-grid"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="logs-tab">
+            <div class="logs-container">
+                <div class="logs-filters">
+                    <select id="log-type-filter">
+                        <option value="">All Actions</option>
+                        <option value="user">User Management</option>
+                        <option value="game">Game Settings</option>
+                        <option value="system">System</option>
+                    </select>
+                    <input type="date" id="log-date-filter">
+                </div>
+                <div class="logs-list" id="admin-logs-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Third-party libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+
+    <!-- Initialize Supabase -->
+    <script src="src/lib/supabase.js"></script>
+
+    <!-- Application scripts -->
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

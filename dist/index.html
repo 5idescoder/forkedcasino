@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arcade Games Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" crossorigin href="/assets/styles-CYRTZ5sZ.css">
+</head>
+<body>
+    <div class="theme-selector">
+        <select id="theme-select">
+            <option value="default">Default Theme</option>
+            <option value="green">Green Theme</option>
+            <option value="blue">Blue Theme</option>
+            <option value="red">Red Theme</option>
+            <option value="purple">Purple Theme</option>
+            <option value="silver">Silver Theme</option>
+            <option value="wood">Wood Theme</option>
+            <option value="dark-golden">Dark Golden</option>
+            <option value="dark-penny">Dark Penny</option>
+        </select>
+    </div>
+
+    <div class="game-container">
+        <div class="header-controls">
+            <div class="nav-group">
+                <div class="dropdown" id="game-dropdown">
+                    <button class="dropbtn glass-button">
+                        <i class="fas fa-gamepad"></i>
+                        Select Game
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" data-game="fish">Fish Game</a>
+                        <a href="#" data-game="keno">Keno</a>
+                        <a href="#" data-game="mancala">Mancala</a>
+                        <a href="#" data-game="plinko">Plinko</a>
+                        <a href="#" data-game="slot">Slot Machine</a>
+                        <a href="#" data-game="spin">Spin Game</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="leaderboard.html">
+                            <i class="fas fa-trophy"></i>
+                            Leaderboard
+                        </a>
+                        <a href="profile.html">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-group">
+                <span id="user-display" class="user-display"></span>
+                <button id="auth-button" class="glass-button">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+                <button id="guest-button" class="glass-button">
+                    <i class="fas fa-user-secret"></i>
+                    <span>Play as Guest</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="game-area">
+            <div id="welcome-message" class="welcome-message">
+                <h1>Welcome to the Arcade!</h1>
+                <div id="faucet-container" class="faucet-container">
+                    <div class="faucet-info">
+                        <h2>Need Coins?</h2>
+                        <p>If your balance drops below 100 coins, you can use our faucet system:</p>
+                        <ul>
+                            <li>Base roll: 1d6 × 50 coins</li>
+                            <li>Hourly bonus: +1d4 per hour waited (up to 5)</li>
+                            <li>Weekly bonus: +1d100 after 7 days</li>
+                        </ul>
+                        <p>Wait time between claims: 4.75 minutes</p>
+                    </div>
+                    <div class="dice-container" id="dice-container"></div>
+                    <button id="faucet-button" class="glass-button" disabled>
+                        <i class="fas fa-coins"></i>
+                        Claim Coins
+                    </button>
+                    <div id="faucet-timer" class="faucet-timer"></div>
+                </div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Third-party libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+
+    <!-- Initialize Supabase -->
+    <script 
+        src="src/lib/supabase.js" 
+        data-supabase-url="https://zoyalqzglwgnvkerzeap.supabase.co"
+        data-supabase-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpveWFscXpnbHdnbnZrZXJ6ZWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzNzI3NTgsImV4cCI6MjA1NTk0ODc1OH0._wROILuyDPCQK3DRbYQZvqjrXPJgsdzK3OsriPSI0-8"
+    ></script>
+
+    <!-- Core utilities -->
+    <script src="src/utils/GameEngine.js"></script>
+
+    <!-- Application scripts -->
+    <script src="auth.js"></script>
+    <script src="emailService.js"></script>
+    <script src="admin.js"></script>
+    <script src="games/fish-game.js"></script>
+    <script src="games/plinko.js"></script>
+    <script src="games/keno.js"></script>
+    <script src="games/slot-machine.js"></script>
+    <script src="games/spin-game.js"></script>
+    <script src="games/mancala.js"></script>
+    <script src="main.js"></script>
+
+    <!-- Theme selector script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeSelect = document.getElementById('theme-select');
+            const savedTheme = localStorage.getItem('theme') || 'default';
+            
+            // Set initial theme
+            themeSelect.value = savedTheme;
+            document.body.setAttribute('data-theme', savedTheme);
+
+            // Handle theme changes
+            themeSelect.addEventListener('change', (e) => {
+                const theme = e.target.value;
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            });
+        });
+    </script>
+</body>
+</html>
