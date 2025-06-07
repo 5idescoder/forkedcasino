@@ -1,4 +1,4 @@
-// Initialize Supabase client with cookie handling
+// Initialize Supabase client with proper configuration
 // Get credentials from script tag data attributes
 const currentScript = document.currentScript || document.querySelector('script[data-supabase-url]');
 const supabaseUrl = currentScript?.getAttribute('data-supabase-url');
@@ -48,6 +48,19 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
           console.error('Error removing auth storage:', error);
         }
       }
+    }
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  },
+  db: {
+    schema: 'public'
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
   }
 });
@@ -112,3 +125,8 @@ supabase.auth.onAuthStateChange(async (event, session) => {
 
 // Make supabase client available globally
 window.supabaseClient = supabase;
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = supabase;
+}
