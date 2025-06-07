@@ -1,6 +1,8 @@
 // Initialize Supabase client with cookie handling
-const supabaseUrl = 'https://mmhlxppfmidbybmmxida.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1taGx4cHBmbWlkYnlibW14aWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0MjQyNzYsImV4cCI6MjA2NDAwMDI3Nn0.yAEeZR9v7_NrKpHmARgadC7kASL9przkZDeASF5W-PM';
+// Get credentials from script tag data attributes
+const currentScript = document.currentScript || document.querySelector('script[data-supabase-url]');
+const supabaseUrl = currentScript?.getAttribute('data-supabase-url') || import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = currentScript?.getAttribute('data-supabase-key') || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase environment variables are missing');
