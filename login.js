@@ -36,6 +36,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         showForm.style.display = 'block';
     };
 
+    // Helper function to handle network and Supabase errors
+    const handleSupabaseError = (error, context = '') => {
+        console.error(`${context} error:`, error);
+        
+        // Handle network errors
+        if (error.message === 'Failed to fetch') {
+            return 'Unable to connect to the service. Please check your internet connection and try again.';
+        }
+        
+        if (error.message === 'Request timed out') {
+            return 'The request took too long to complete. Please try again.';
+        }
+        
+        // Handle specific Supabase errors
+        if (error.code === 'PGRST116') {
+            return context === 'Username lookup' ? 'Invalid username/email or password' : 'Username is available';
+        }
+        
+        if (error.code === 'JWT_INVALID') {
+            return 'Session expired. Please refresh the page and try again.';
+        }
+        
+        // Handle auth errors
+        if (error.message && error.message.includes('Invalid login credentials')) {
+            return 'Invalid username/email or password';
+        }
+        
+        if (error.message && error.message.includes('User already registered')) {
+            return 'Email is already registered';
+        }
+        
+        // Return the original error message if available, otherwise a generic message
+        return error.message || `An error occurred during ${context.toLowerCase()}. Please try again.`;
+    };
+
     showRegisterLink?.addEventListener('click', (e) => {
         e.preventDefault();
         switchForm(registerFormContainer, loginFormContainer);
@@ -80,14 +115,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ]);
 
                     if (userError) {
-                        console.error('Username lookup error:', userError);
+                        const errorMessage = handleSupabaseError(userError, 'Username lookup');
                         if (userError.code === 'PGRST116') {
                             throw new Error('Invalid username/email or password');
                         }
-                        if (userError.code === 'JWT_INVALID') {
-                            throw new Error('Session expired. Please refresh the page and try again.');
-                        }
-                        throw new Error('Error looking up username. Please try again.');
+                        throw new Error(errorMessage);
                     }
 
                     if (users?.email) {
@@ -96,17 +128,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         throw new Error('Invalid username/email or password');
                     }
                 } catch (lookupError) {
-                    console.error('Username lookup failed:', lookupError);
-                    
-                    // Handle specific network-related errors
-                    if (lookupError.message === 'Failed to fetch') {
-                        throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
-                    }
-                    if (lookupError.message === 'Request timed out') {
-                        throw new Error('The request took too long to complete. Please try again.');
-                    }
-                    
-                    throw lookupError;
+                    const errorMessage = handleSupabaseError(lookupError, 'Username lookup');
+                    throw new Error(errorMessage);
                 }
             }
 
@@ -121,14 +144,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (error) {
-                console.error('Login error:', error);
-                if (error.message.includes('Invalid login credentials')) {
-                    throw new Error('Invalid username/email or password');
-                }
-                if (error.message === 'Failed to fetch') {
-                    throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
-                }
-                throw error;
+                const errorMessage = handleSupabaseError(error, 'Login');
+                throw new Error(errorMessage);
             }
 
             window.location.href = 'index.html';
@@ -180,8 +197,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // No user found with this username, which is what we want
                         console.log('Username is available');
                     } else {
-                        console.error('Username check error:', checkError);
-                        throw new Error('Error checking username availability. Please try again.');
+                        const errorMessage = handleSupabaseError(checkError, 'Username check');
+                        throw new Error(errorMessage);
                     }
                 } else if (existingUser) {
                     throw new Error('Username is already taken');
@@ -190,11 +207,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (checkError.message === 'Username is already taken') {
                     throw checkError;
                 }
-                if (checkError.message === 'Failed to fetch') {
-                    throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
-                }
-                console.error('Username availability check failed:', checkError);
-                throw new Error('Unable to verify username availability. Please try again later.');
+                const errorMessage = handleSupabaseError(checkError, 'Username availability check');
+                throw new Error(errorMessage);
             }
 
             // Create auth user
@@ -209,14 +223,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (authError) {
-                console.error('Registration error:', authError);
-                if (authError.message.includes('User already registered')) {
-                    throw new Error('Email is already registered');
-                }
-                if (authError.message === 'Failed to fetch') {
-                    throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
-                }
-                throw authError;
+                const errorMessage = handleSupabaseError(authError, 'Registration');
+                throw new Error(errorMessage);
             }
 
             // Show success message
