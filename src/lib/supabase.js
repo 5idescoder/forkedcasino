@@ -50,11 +50,6 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
       }
     }
   },
-  global: {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  },
   db: {
     schema: 'public'
   },
