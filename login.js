@@ -1,4 +1,27 @@
+// Wait for Supabase client to be available
+const waitForSupabaseClient = () => {
+    return new Promise((resolve) => {
+        if (window.supabaseClient) {
+            resolve();
+            return;
+        }
+        
+        const checkClient = () => {
+            if (window.supabaseClient) {
+                resolve();
+            } else {
+                setTimeout(checkClient, 100);
+            }
+        };
+        
+        checkClient();
+    });
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for Supabase client to be available before proceeding
+    await waitForSupabaseClient();
+    
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const showRegisterLink = document.getElementById('show-register');
@@ -93,11 +116,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Only try username lookup if the identifier doesn't look like an email
             if (!identifier.includes('@')) {
                 try {
-                    // Check if supabaseClient is properly initialized
-                    if (!window.supabaseClient) {
-                        throw new Error('Unable to connect to the service. Please refresh the page and try again.');
-                    }
-
                     // Add timeout to the fetch request
                     const timeoutPromise = new Promise((_, reject) => 
                         setTimeout(() => reject(new Error('Request timed out')), 10000)
@@ -131,11 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const errorMessage = handleSupabaseError(lookupError, 'Username lookup');
                     throw new Error(errorMessage);
                 }
-            }
-
-            // Check if supabaseClient is properly initialized before sign in
-            if (!window.supabaseClient) {
-                throw new Error('Unable to connect to the service. Please refresh the page and try again.');
             }
 
             const { data, error } = await window.supabaseClient.auth.signInWithPassword({
@@ -177,11 +190,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Validate passwords match
             if (password !== confirmPassword) {
                 throw new Error('Passwords do not match');
-            }
-
-            // Check if supabaseClient is properly initialized
-            if (!window.supabaseClient) {
-                throw new Error('Unable to connect to the service. Please refresh the page and try again.');
             }
 
             // Check if username is already taken with proper error handling
