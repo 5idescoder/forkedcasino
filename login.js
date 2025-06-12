@@ -59,13 +59,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         showForm.style.display = 'block';
     };
 
-    // Helper function to handle network and Supabase errors
-    const handleSupabaseError = (error, context = '') => {
+    // Enhanced error handling with connection diagnostics
+    const handleSupabaseError = async (error, context = '') => {
         console.error(`${context} error:`, error);
         
-        // Handle network errors
-        if (error.message === 'Failed to fetch') {
-            return 'Unable to connect to the service. Please check your internet connection and try again.';
+        // Handle network errors with enhanced diagnostics
+        if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+            // Test connection to provide better error message
+            if (window.testSupabaseConnection) {
+                const connectionOk = await window.testSupabaseConnection();
+                if (!connectionOk) {
+                    return 'Unable to connect to the service. Please check:\n' +
+                           '• Your internet connection\n' +
+                           '• If you\'re using a VPN or proxy, try disabling it\n' +
+                           '• Refresh the page and try again';
+                }
+            }
+            return 'Connection failed. Please check your internet connection and try again.';
         }
         
         if (error.message === 'Request timed out') {
@@ -88,6 +98,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (error.message && error.message.includes('User already registered')) {
             return 'Email is already registered';
+        }
+        
+        if (error.message && error.message.includes('Email not confirmed')) {
+            return 'Please check your email and confirm your account before logging in';
         }
         
         // Return the original error message if available, otherwise a generic message
@@ -118,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     // Add timeout to the fetch request
                     const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Request timed out')), 10000)
+                        setTimeout(() => reject(new Error('Request timed out')), 15000)
                     );
 
                     const fetchPromise = window.supabaseClient
@@ -133,10 +147,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ]);
 
                     if (userError) {
-                        const errorMessage = handleSupabaseError(userError, 'Username lookup');
                         if (userError.code === 'PGRST116') {
                             throw new Error('Invalid username/email or password');
                         }
+                        const errorMessage = await handleSupabaseError(userError, 'Username lookup');
                         throw new Error(errorMessage);
                     }
 
@@ -146,7 +160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         throw new Error('Invalid username/email or password');
                     }
                 } catch (lookupError) {
-                    const errorMessage = handleSupabaseError(lookupError, 'Username lookup');
+                    const errorMessage = await handleSupabaseError(lookupError, 'Username lookup');
                     throw new Error(errorMessage);
                 }
             }
@@ -157,14 +171,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (error) {
-                const errorMessage = handleSupabaseError(error, 'Login');
+                const errorMessage = await handleSupabaseError(error, 'Login');
                 throw new Error(errorMessage);
             }
 
             window.location.href = 'index.html';
         } catch (error) {
             console.error('Login process error:', error);
-            showError('login', error.message || 'An error occurred during login. Please try again.');
+            const errorMessage = error.message || 'An error occurred during login. Please try again.';
+            showError('login', errorMessage);
         }
     });
 
@@ -194,18 +209,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Check if username is already taken with proper error handling
             try {
-                const { data: existingUser, error: checkError } = await window.supabaseClient
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timed out')), 15000)
+                );
+
+                const fetchPromise = window.supabaseClient
                     .from('users')
                     .select('id')
                     .eq('username', username)
                     .single();
+
+                const { data: existingUser, error: checkError } = await Promise.race([
+                    fetchPromise,
+                    timeoutPromise
+                ]);
 
                 if (checkError) {
                     if (checkError.code === 'PGRST116') {
                         // No user found with this username, which is what we want
                         console.log('Username is available');
                     } else {
-                        const errorMessage = handleSupabaseError(checkError, 'Username check');
+                        const errorMessage = await handleSupabaseError(checkError, 'Username check');
                         throw new Error(errorMessage);
                     }
                 } else if (existingUser) {
@@ -215,7 +239,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (checkError.message === 'Username is already taken') {
                     throw checkError;
                 }
-                const errorMessage = handleSupabaseError(checkError, 'Username availability check');
+                const errorMessage = await handleSupabaseError(checkError, 'Username availability check');
                 throw new Error(errorMessage);
             }
 
@@ -231,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (authError) {
-                const errorMessage = handleSupabaseError(authError, 'Registration');
+                const errorMessage = await handleSupabaseError(authError, 'Registration');
                 throw new Error(errorMessage);
             }
 
@@ -252,7 +276,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('login-password').value = '';
         } catch (error) {
             console.error('Registration process error:', error);
-            showError('register', error.message || 'An error occurred during registration. Please try again.');
+            const errorMessage = error.message || 'An error occurred during registration. Please try again.';
+            showError('register', errorMessage);
         }
     });
 

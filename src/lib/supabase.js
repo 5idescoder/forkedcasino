@@ -9,6 +9,30 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+// Test connectivity to Supabase
+const testSupabaseConnection = async () => {
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+      method: 'HEAD',
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`
+      }
+    });
+    
+    if (!response.ok) {
+      console.warn('Supabase connection test failed:', response.status, response.statusText);
+      return false;
+    }
+    
+    console.log('Supabase connection test successful');
+    return true;
+  } catch (error) {
+    console.error('Supabase connection test error:', error);
+    return false;
+  }
+};
+
 const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
@@ -87,6 +111,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
               id: session.user.id,
               username: session.user.user_metadata.username || session.user.email.split('@')[0],
               email: session.user.email,
+              password_hash: '', // This will be managed by Supabase Auth
               is_admin: false
             }]);
 
@@ -118,8 +143,12 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
+// Test connection on initialization
+testSupabaseConnection();
+
 // Make supabase client available globally
 window.supabaseClient = supabase;
+window.testSupabaseConnection = testSupabaseConnection;
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
